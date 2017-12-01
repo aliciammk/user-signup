@@ -12,21 +12,30 @@ def user_signup():
     verify = request.form['verify']
     email = request.form['email']
 
+    username_error = ''
+    password_error = ''
+    verify_error = ''
+    email_error = ''
+
     if len(username) < 3 or len(username) > 20:
-        username_error = "Please enter a username between 3 and 20 characters long."
-        return redirect("/?error=" + username_error)
+        error = "Please enter a valid username."
+        error_type = "username_error"
+        return render_template('signup.html', password='', verify='', email=email, error=error, error_type=error_type)
     
-    if len(password) < 3 or len(password) > 20:
-        password_error = "Please enter a password between 3 and 20 characters long."
-        return redirect("/?error=" + password_error)
+    elif len(password) < 3 or len(password) > 20:
+        error = "Please enter a valid password."
+        error_type = "password_error"
+        return render_template('signup.html', username=username, password='', verify='', email=email, error=error, error_type=error_type)
     
-    if password != verify:
-        verify_error = "Passwords do not match."
-        return redirect("/?error=" + verify_error)
+    elif password != verify:
+        error = "Passwords do not match."
+        error_type = "verify_error"
+        return render_template('signup.html', username=username, password='', verify='', email=email, error=error, error_type=error_type)
     
-    if len(email)> 0 and "." not in email and "@" not in email:
-        email_error = "Email is not valid."
-        return redirect("/?error=" + email_error)
+    elif len(email)> 0 and "." not in email and "@" not in email:
+        error = "Email is not valid."
+        error_type = "email_error"
+        return render_template('signup.html', username=username, password='', verify='', error=error, error_type=error_type)
 
     else:
         return render_template('welcome.html', username=username)
@@ -37,6 +46,7 @@ def user_signup():
 @app.route("/")
 def index():
     encoded_error = request.args.get("error")
-    return render_template('signup.html', error=encoded_error and cgi.escape(encoded_error, quote=True))
+    error_type = request.args.get("error_type")
+    return render_template('signup.html', error=encoded_error and cgi.escape(encoded_error, quote=True), error_type=error_type and cgi.escape(error_type, quote=True))
 
 app.run()
